@@ -24,11 +24,7 @@ namespace NorthwindApp.Helpers
         public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
         {
             int count = await source.CountAsync();
-            if (pageSize == 0)
-            {
-                pageSize = count;
-            }
-
+            pageSize = pageSize == 0 ? count : pageSize;
             List<T> items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }

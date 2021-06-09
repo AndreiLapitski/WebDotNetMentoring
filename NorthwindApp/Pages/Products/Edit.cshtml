@@ -1,0 +1,73 @@
+﻿@page
+@model NorthwindApp.Pages.Products.EditModel
+
+<h4>Edit product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Product.ProductId" class="control-label"></label>
+                <br />
+                <span>@Model.Product.ProductId</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.ProductName" class="control-label"></label>
+                <input asp-for="Product.ProductName" class="form-control" />
+                <span asp-validation-for="Product.ProductName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.CategoryId" class="control-label"></label>
+                <select class="dropdown" asp-for="Product.CategoryId" asp-items="Model.Categories">
+                    <option disabled selected>Select category</option>
+                </select>
+                <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.SupplierId" class="control-label"></label>
+                <select class="dropdown" asp-for="Product.SupplierId" asp-items="Model.Suppliers">
+                    <option disabled selected>Select supplier</option>
+                </select>
+                <span asp-validation-for="Product.SupplierId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.QuantityPerUnit" class="control-label"></label>
+                <input asp-for="Product.QuantityPerUnit" class="form-control" />
+                <span asp-validation-for="Product.QuantityPerUnit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.UnitPrice" class="control-label"></label>
+                <input asp-for="Product.UnitPrice" class="form-control" />
+                <span asp-validation-for="Product.UnitPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.UnitsInStock" class="control-label"></label>
+                <input asp-for="Product.UnitsInStock" class="form-control" />
+                <span asp-validation-for="Product.UnitsInStock" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.UnitsOnOrder" class="control-label"></label>
+                <input asp-for="Product.UnitsOnOrder" class="form-control" />
+                <span asp-validation-for="Product.UnitsOnOrder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.ReorderLevel" class="control-label"></label>
+                <input asp-for="Product.ReorderLevel" class="form-control" />
+                <span asp-validation-for="Product.ReorderLevel" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Product.Discontinued" class="control-label"></label>
+                <input asp-for="Product.Discontinued" class="form-control" />
+                <span asp-validation-for="Product.Discontinued" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>

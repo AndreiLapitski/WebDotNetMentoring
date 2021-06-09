@@ -73,3 +73,20 @@ body {
 .pagination-container {
     margin-bottom: 10px !important;
 }
+
+/* Custom styles 
+-------------------------------------------------- */
+.flex-container {
+    display: flex;
+}
+
+.flex-item-right {
+    margin-left: auto;
+}
+
+.dropdown {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}

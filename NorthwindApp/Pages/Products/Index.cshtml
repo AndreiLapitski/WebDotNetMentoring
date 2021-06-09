@@ -1,0 +1,85 @@
+﻿@page
+@using NorthwindApp.Helpers
+@using NorthwindApp.Models
+@model NorthwindApp.Pages.Products.IndexModel
+
+@{
+    string previousDisabled = !Model.Products.HasPreviousPage ? Constants.Disabled : string.Empty;
+    string nextDisabled = !Model.Products.HasNextPage ? Constants.Disabled : string.Empty;
+    int.TryParse(ViewData["ProductsPageSize"].ToString(), out int productsPageSize);
+}
+
+<div class="flex-container">
+    <div>
+        <a asp-page="/Products/Create"
+           class="btn btn-success text-light">
+            Create
+        </a>
+    </div>
+
+    <div class="flex-item-right">
+        @if (productsPageSize > 0)
+        {
+            <div class="pagination-container">
+                <a asp-page="/Products/Index"
+                   asp-route-pageIndex="1"
+                    class="btn btn-dark">
+                    <i class="fas fa-fast-backward"></i>
+                </a>
+
+                <a asp-page="/Products/Index"
+                   asp-route-pageIndex="@(Model.Products.PageIndex - 1)"
+                   class="btn btn-dark @previousDisabled">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+
+                <a asp-page="/Products/Index"
+                   asp-route-pageIndex="@(Model.Products.PageIndex + 1)"
+                   class="btn btn-dark @nextDisabled">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+
+                <a asp-page="/Products/Index"
+                   asp-route-pageIndex="@(Model.Products.TotalPages)"
+                    class="btn btn-dark">
+                    <i class="fas fa-fast-forward"></i>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<table id="products" class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            @foreach (string rowName in Model.RowNames)
+            {
+                <th>@rowName</th>
+            }
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (Product product in Model.Products)
+        {
+            <tr>
+                <td>@product.ProductId</td>
+                <td>
+                    <a asp-page="/Products/Edit" asp-route-id="@product.ProductId">
+                        @product.ProductName
+                    </a>
+                </td>
+                <td>@product.Supplier.CompanyName</td>
+                <td>@product.Category.CategoryName</td>
+                <td>@product.QuantityPerUnit</td>
+                <td>@product.UnitPrice</td>
+                <td>@product.UnitsInStock</td>
+                <td>@product.UnitsOnOrder</td>
+                <td>@product.ReorderLevel</td>
+                <td>@product.Discontinued</td>
+            </tr>
+        }
+    </tbody>
+</table>

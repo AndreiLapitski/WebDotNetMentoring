@@ -26,6 +26,11 @@ namespace NorthwindApp
             services.AddSingleton(Configuration);
             ConfigureStorage(services);
             services.AddRazorPages();
+            // https://stackoverflow.com/questions/63112368/asp-net-core-api-validationvisitor-exceeded-the-maximum-configured-validation
+            services.AddMvc().AddMvcOptions(options =>
+                {
+                    options.MaxModelValidationErrors = 999999;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,13 +62,14 @@ namespace NorthwindApp
 
         private void ConfigureStorage(IServiceCollection services)
         {
-            services.AddDbContext<NorthwindContext>(optionsAction => 
-                    optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)), 
+            services.AddDbContext<NorthwindContext>(optionsAction =>
+                    optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)),
                 ServiceLifetime.Transient,
                 ServiceLifetime.Singleton);
 
             services.AddSingleton<IRepository<Category>, CategoryRepository>();
             services.AddSingleton<IRepository<Product>, ProductRepository>();
+            services.AddSingleton<IRepository<Supplier>, SupplierRepository>();
         }
     }
 }
