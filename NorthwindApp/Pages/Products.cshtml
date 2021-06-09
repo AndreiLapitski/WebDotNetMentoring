@@ -1,0 +1,30 @@
+﻿@page
+@using NorthwindApp.Models
+@model ProductsModel
+
+<table id="Categories" class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            @foreach (string rowName in Model.RowNames)
+            {
+                <th>@rowName</th>
+            }
+        </tr>
+    </thead>
+
+    @foreach (Product product in Model.Products)
+    {
+        <tr>
+            <td>@product.ProductId</td>
+            <td>@product.ProductName</td>
+            <td>@product.Supplier.CompanyName</td>
+            <td>@product.Category.CategoryName</td>
+            <td>@product.QuantityPerUnit</td>
+            <td>@product.UnitPrice</td>
+            <td>@product.UnitsInStock</td>
+            <td>@product.UnitsOnOrder</td>
+            <td>@product.ReorderLevel</td>
+            <td>@product.Discontinued</td>
+        </tr>
+    }
+</table>
