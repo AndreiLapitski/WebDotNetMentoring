@@ -1,17 +1,40 @@
 ﻿@page
+@using NorthwindApp.Helpers
 @using NorthwindApp.Models
 @model ProductsModel
+@{
+    string previousDisabled = !Model.Products.HasPreviousPage ? Constants.Disabled : string.Empty;
+    string nextDisabled = !Model.Products.HasNextPage ? Constants.Disabled : string.Empty;
+    int.TryParse(ViewData["ProductsPageSize"].ToString(), out int productsPageSize);
+}
 
-<table id="Categories" class="table table-striped">
+@if (productsPageSize > 0) { 
+    <div class="pagination-container">
+        <a asp-page="./Products"
+           asp-route-pageIndex="@(Model.Products.PageIndex - 1)"
+           class="btn btn-dark @previousDisabled">
+            Previous
+        </a>
+
+        <a asp-page="./Products"
+           asp-route-pageIndex="@(Model.Products.PageIndex + 1)"
+           class="btn btn-dark @nextDisabled">
+            Next
+        </a>
+    </div>
+}
+
+<table id="products" class="table table-striped">
     <thead class="thead-dark">
-        <tr>
-            @foreach (string rowName in Model.RowNames)
-            {
-                <th>@rowName</th>
-            }
-        </tr>
+    <tr>
+        @foreach (string rowName in Model.RowNames)
+        {
+            <th>@rowName</th>
+        }
+    </tr>
     </thead>
 
+    <tbody>
     @foreach (Product product in Model.Products)
     {
         <tr>
@@ -27,4 +50,5 @@
             <td>@product.Discontinued</td>
         </tr>
     }
+    </tbody>
 </table>

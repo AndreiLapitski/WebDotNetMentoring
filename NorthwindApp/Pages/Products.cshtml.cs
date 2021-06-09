@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
 using NorthwindApp.Models;
@@ -9,28 +10,30 @@ namespace NorthwindApp.Pages
 {
     public class ProductsModel : PageModel
     {
+        private readonly IConfiguration _configuration;
         private readonly IRepository<Product> _productRepository;
         private readonly IList<string> _rowNames;
-        private IList<Product> _products;
 
         public IList<string> RowNames => _rowNames ?? PropertyHelper.GetDisplayablePropertyNames(typeof(Product));
-        public IList<Product> Products { get; set; } = new List<Product>();
+        public PaginatedList<Product> Products { get; set; }
 
-        public ProductsModel(IRepository<Product> productRepository)
+        public ProductsModel(IConfiguration configuration, IRepository<Product> productRepository)
         {
+            _configuration = configuration;
             _productRepository = productRepository;
             _rowNames = PropertyHelper.GetDisplayablePropertyNames(typeof(Product));
-            Init();
         }
 
-        public void OnGet()
+        public async Task OnGetAsync(int? pageIndex)
         {
-            Products = _products;
+            int productsPageSize = _configuration.GetValue<int>(Constants.ProductsPageSize);
+            ViewData["ProductsPageSize"] = productsPageSize;
+            await Init(productsPageSize, pageIndex);
         }
 
-        private void Init()
+        private async Task Init(int productsPageSize, int? pageIndex)
         {
-            _products = _productRepository.GetAll().ToList();
+            Products = await PaginatedList<Product>.CreateAsync(_productRepository.GetAll(), pageIndex ?? 1, productsPageSize);
         }
     }
 }

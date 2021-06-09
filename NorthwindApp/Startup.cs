@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
 using NorthwindApp.Models;
 using NorthwindApp.Repositories;
@@ -12,8 +13,6 @@ namespace NorthwindApp
 {
     public class Startup
     {
-        private const string DbConnection = "Data Source=localhost;Initial Catalog=Northwind;Integrated Security=True";
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -58,7 +57,8 @@ namespace NorthwindApp
 
         private void ConfigureStorage(IServiceCollection services)
         {
-            services.AddDbContext<NorthwindContext>(optionsAction => optionsAction.UseSqlServer(DbConnection), 
+            services.AddDbContext<NorthwindContext>(optionsAction => 
+                    optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)), 
                 ServiceLifetime.Transient,
                 ServiceLifetime.Singleton);
 
