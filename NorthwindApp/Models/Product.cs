@@ -17,6 +17,7 @@ namespace NorthwindApp.Models
         public string ProductName { get; set; }
 
         [DisplayName("Supplier")]
+        [Required]
         public int? SupplierId { get; set; }
 
         [DisplayName("Category")]
@@ -25,22 +26,27 @@ namespace NorthwindApp.Models
 
         [DisplayName("Quantity per unit")]
         [StringLength(20)]
+        [Required]
         public string QuantityPerUnit { get; set; }
 
         [DisplayName("Price")]
         [Range(0, 100_000)]
+        [Required]
         public decimal? UnitPrice { get; set; }
 
         [DisplayName("Units in stock")]
         [Range(0, 100_000)]
+        [Required]
         public short? UnitsInStock { get; set; }
 
         [DisplayName("Units on order")]
         [Range(0, 100_000)]
+        [Required]
         public short? UnitsOnOrder { get; set; }
 
         [DisplayName("Reorder level")]
         [Range(0, 100_000)]
+        [Required]
         public short? ReorderLevel { get; set; }
 
         public bool Discontinued { get; set; }
