@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace NorthwindApp.Pages.Products
             Product = await _productRepository.GetByIdAsync(id);
             if (Product == null)
             {
-                return NotFound();
+                throw new Exception($"Product not found by ID = {id}");
             }
 
             InitProperties();
@@ -58,7 +59,7 @@ namespace NorthwindApp.Pages.Products
             Product productForUpdate = await _productRepository.GetByIdAsync(id);
             if (productForUpdate == null)
             {
-                return NotFound();
+                throw new Exception($"Product not found by ID = {id}");
             }
 
             if (!await TryUpdateModelAsync(productForUpdate, "product",

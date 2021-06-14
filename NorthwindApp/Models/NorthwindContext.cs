@@ -29,6 +29,10 @@ namespace NorthwindApp.Models
                 entity.HasKey(x => x.ProductId);
 
                 entity
+                    .Property(p => p.UnitPrice)
+                    .HasColumnType("decimal(10,3)");
+
+                entity
                     .HasOne(product => product.Supplier)
                     .WithMany(supplier => supplier.Products)
                     .HasForeignKey(product => product.SupplierId)

@@ -1,20 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace NorthwindApp.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
-
-        public IndexModel(ILogger<IndexModel> logger)
+        public IActionResult OnGet(int? code)
         {
-            _logger = logger;
-        }
+            if (code != null)
+            {
+                switch (code)
+                {
+                    case 1:
+                        int a = 1;
+                        int b = 0;
+                        int c = a / b;
+                        break;
+                }
+            }
 
-        public void OnGet()
-        {
-
+            return Page();
         }
     }
 }
