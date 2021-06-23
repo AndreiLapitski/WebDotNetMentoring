@@ -29,6 +29,7 @@ namespace NorthwindApp
             // https://stackoverflow.com/questions/63112368/asp-net-core-api-validationvisitor-exceeded-the-maximum-configured-validation
             services.AddMvc().AddMvcOptions(options =>
                 {
+                    options.EnableEndpointRouting = false;
                     options.MaxModelValidationErrors = 999999;
                 });
         }
@@ -56,18 +57,24 @@ namespace NorthwindApp
             {
                 endpoints.MapRazorPages();
             });
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    "default",
+                    "{controller=Home}/{action=Index}/{id?}");
+            });
         }
 
         private void ConfigureStorage(IServiceCollection services)
         {
             services.AddDbContext<NorthwindContext>(optionsAction =>
                     optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)),
-                ServiceLifetime.Transient,
-                ServiceLifetime.Singleton);
+                ServiceLifetime.Transient, ServiceLifetime.Transient);
 
-            services.AddSingleton<IRepository<Category>, CategoryRepository>();
-            services.AddSingleton<IRepository<Product>, ProductRepository>();
-            services.AddSingleton<IRepository<Supplier>, SupplierRepository>();
+            services.AddTransient<IRepository<Category>, CategoryRepository>();
+            services.AddTransient<IRepository<Product>, ProductRepository>();
+            services.AddTransient<IRepository<Supplier>, SupplierRepository>();
         }
     }
 }

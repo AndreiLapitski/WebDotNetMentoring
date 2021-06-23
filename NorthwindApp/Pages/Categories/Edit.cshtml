@@ -1,0 +1,23 @@
+﻿@page
+@model NorthwindApp.Pages.Categories.EditModel
+
+<form method="post" enctype="multipart/form-data">
+    <div class="flex-container">
+        <input type="file" asp-for="Upload" accept="@Model.AcceptedFiles" onchange="ShowElement('input-button')" />
+
+        <div class="form-group">
+            <input id="input-button" type="submit" value="Change image" class="btn btn-success hidden" />
+        </div>
+        
+        <div>
+            <a class="btn btn-info justify-content-end" href="@Model.CategoryPictureHref">Download picture</a>
+        </div>
+    </div>
+
+    <h3>@Model.Category.CategoryName</h3>
+
+    <div>
+        <p>Current image</p>
+        @Html.GetImage(Model.Category.Picture)
+    </div>
+</form>

@@ -1,22 +1,25 @@
 ﻿@page
-@using NorthwindApp.Models
 @model NorthwindApp.Pages.Categories.IndexModel
 
 <table id="categories" class="table table-striped">
     <thead class="thead-dark">
-        <tr>
-            @foreach (string rowName in Model.RowNames)
-            {
-                <th>@rowName</th>
-            }
-        </tr>
+    <tr>
+        @foreach (string rowName in Model.RowNames)
+        {
+            <th>@rowName</th>
+        }
+    </tr>
     </thead>
 
     @foreach (Category category in Model.Categories)
     {
         <tr>
             <td>@category.CategoryId</td>
-            <td>@category.CategoryName</td>
+            <td>
+                <a asp-page="/Categories/Edit" asp-route-categoryId="@category.CategoryId">
+                    @category.CategoryName
+                </a>
+            </td>
             <td>@category.Description</td>
         </tr>
     }
