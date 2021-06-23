@@ -63,6 +63,15 @@ namespace NorthwindApp
                 routes.MapRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    "DownloadImage",
+                    "images/{categoryId?}",
+                    new
+                    {
+                        controller = "Picture",
+                        action = "DownloadCategoryPicture"
+                    });
             });
         }
 
