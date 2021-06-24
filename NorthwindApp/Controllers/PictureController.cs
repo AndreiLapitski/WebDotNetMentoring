@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
@@ -18,9 +19,12 @@ namespace NorthwindApp.Controllers
         public async Task<IActionResult> DownloadCategoryPicture(int categoryId)
         {
             Category category = await _categoryRepository.GetByIdAsync(categoryId);
-            string pictureNameWithExtension = $"{category.CategoryName}.jpg";
-            return File(category.Picture, Constants.ContentTypeDownload, pictureNameWithExtension);
-        }
+            if(category == null || category.Picture == null || !category.Picture.Any())
+            {
+                return NotFound();
+            }
 
+            return File(category.Picture, Constants.ContentTypeDownload, $"{category.CategoryName}.jpg");
+        }
     }
 }
