@@ -19,12 +19,15 @@ namespace NorthwindApp.Controllers
         public async Task<IActionResult> DownloadCategoryPicture(int categoryId)
         {
             Category category = await _categoryRepository.GetByIdAsync(categoryId);
-            if(category == null || category.Picture == null || !category.Picture.Any())
+            if(category?.Picture == null || !category.Picture.Any())
             {
                 return NotFound();
             }
 
-            return File(category.Picture, Constants.ContentTypeDownload, $"{category.CategoryName}.jpg");
+            return File(
+                category.Picture,
+                Constants.ContentTypeDownload,
+                $"{category.CategoryName}.jpg");
         }
     }
 }

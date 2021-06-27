@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
+using NorthwindApp.Middleware;
 using NorthwindApp.Models;
 using NorthwindApp.Repositories;
 
@@ -53,6 +55,8 @@ namespace NorthwindApp
 
             app.UseAuthorization();
 
+            app.UseMiddleware<CacheMiddleware>();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
@@ -73,17 +77,45 @@ namespace NorthwindApp
                         action = "DownloadCategoryPicture"
                     });
             });
+
+            ClearOrCreateCacheDirectory(
+                env,
+                Configuration.GetValue<string>(Constants.CachedFolderNameKey));
         }
 
         private void ConfigureStorage(IServiceCollection services)
         {
             services.AddDbContext<NorthwindContext>(optionsAction =>
-                    optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)),
-                ServiceLifetime.Transient, ServiceLifetime.Transient);
+                    optionsAction.UseSqlServer(
+                        Configuration.GetConnectionString(Constants.DbConnectionKey)),
+                ServiceLifetime.Transient,
+                ServiceLifetime.Transient);
 
             services.AddTransient<IRepository<Category>, CategoryRepository>();
             services.AddTransient<IRepository<Product>, ProductRepository>();
             services.AddTransient<IRepository<Supplier>, SupplierRepository>();
+        }
+
+        private void ClearOrCreateCacheDirectory(IWebHostEnvironment env, string directoryName)
+        {
+            string path = $"{env.ContentRootPath}\\{directoryName}";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            else
+            {
+                ClearCacheDirectory(path);
+            }
+        }
+
+        private void ClearCacheDirectory(string directoryPath)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
         }
     }
 }

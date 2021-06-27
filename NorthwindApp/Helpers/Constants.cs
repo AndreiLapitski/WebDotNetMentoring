@@ -9,6 +9,8 @@
         public const string Disabled = "disabled";
         public const string ErrorTemplatePath = "templates/Exception.html";
         public const string ContentTypeTextHtml = "text/html";
-        public const string ContentTypeDownload = "application/force-download";
+        public const string ContentTypeDownload = "image/jpeg";
+        public const string CachedFolderNameKey = "CachedFolderName";
+        public const string CacheTimeInMinutesKey = "CacheTimeInMinutes";
     }
 }
