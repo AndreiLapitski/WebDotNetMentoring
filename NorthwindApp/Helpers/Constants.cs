@@ -12,5 +12,6 @@
         public const string ContentTypeDownload = "image/jpeg";
         public const string CachedFolderNameKey = "CachedFolderName";
         public const string CacheTimeInMinutesKey = "CacheTimeInMinutes";
+        public const string LoggingActionsEnabledKey = "LoggingActionsEnabled";
     }
 }

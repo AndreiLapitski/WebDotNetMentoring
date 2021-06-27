@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NorthwindApp.Filters;
 using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
 using NorthwindApp.Middleware;
@@ -28,11 +29,12 @@ namespace NorthwindApp
             services.AddSingleton(Configuration);
             ConfigureStorage(services);
             services.AddRazorPages();
-            // https://stackoverflow.com/questions/63112368/asp-net-core-api-validationvisitor-exceeded-the-maximum-configured-validation
+
             services.AddMvc().AddMvcOptions(options =>
                 {
                     options.EnableEndpointRouting = false;
-                    options.MaxModelValidationErrors = 999999;
+                    options.MaxModelValidationErrors = 999999; // https://stackoverflow.com/questions/63112368/asp-net-core-api-validationvisitor-exceeded-the-maximum-configured-validation
+                    options.Filters.Add(typeof(LogFilter));
                 });
         }
 
