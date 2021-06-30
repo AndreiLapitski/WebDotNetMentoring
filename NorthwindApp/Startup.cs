@@ -88,14 +88,11 @@ namespace NorthwindApp
         private void ConfigureStorage(IServiceCollection services)
         {
             services.AddDbContext<NorthwindContext>(optionsAction =>
-                    optionsAction.UseSqlServer(
-                        Configuration.GetConnectionString(Constants.DbConnectionKey)),
-                ServiceLifetime.Transient,
-                ServiceLifetime.Transient);
+                    optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)));
 
-            services.AddTransient<IRepository<Category>, CategoryRepository>();
-            services.AddTransient<IRepository<Product>, ProductRepository>();
-            services.AddTransient<IRepository<Supplier>, SupplierRepository>();
+            services.AddScoped<IRepository<Category>, CategoryRepository>();
+            services.AddScoped<IRepository<Product>, ProductRepository>();
+            services.AddScoped<IRepository<Supplier>, SupplierRepository>();
         }
 
         private void ClearOrCreateCacheDirectory(IWebHostEnvironment env, string directoryName)
