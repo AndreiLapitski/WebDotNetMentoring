@@ -80,6 +80,10 @@ body {
     display: flex;
 }
 
+.flex-container > div:last-child {
+    margin-left: auto;
+}
+
 .flex-item-right {
     margin-left: auto;
 }
@@ -89,4 +93,8 @@ body {
     width: 100%;
     border: 1px solid #ced4da;
     border-radius: .25rem;
+}
+
+.hidden {
+    display: none;
 }

@@ -4,13 +4,13 @@ namespace NorthwindApp.Models
 {
     public class NorthwindContext : DbContext
     {
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Supplier> Suppliers { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Supplier> Suppliers { get; set; }
 
-        public NorthwindContext(DbContextOptions<NorthwindContext> options) : base(options)
-        {
-        }
+        public NorthwindContext() { }
+
+        public NorthwindContext(DbContextOptions<NorthwindContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,12 +1,9 @@
 ﻿@page
-@using NorthwindApp.Helpers
-@using NorthwindApp.Models
 @model NorthwindApp.Pages.Products.IndexModel
 
 @{
     string previousDisabled = !Model.Products.HasPreviousPage ? Constants.Disabled : string.Empty;
     string nextDisabled = !Model.Products.HasNextPage ? Constants.Disabled : string.Empty;
-    int.TryParse(ViewData["ProductsPageSize"].ToString(), out int productsPageSize);
 }
 
 <div class="flex-container">
@@ -18,7 +15,7 @@
     </div>
 
     <div class="flex-item-right">
-        @if (productsPageSize > 0)
+        @if (Model.ProductsPageSize > 0)
         {
             <div class="pagination-container">
                 <a asp-page="/Products/Index"
