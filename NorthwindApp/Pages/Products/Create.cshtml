@@ -1,6 +1,10 @@
 ﻿@page
 @model NorthwindApp.Pages.Products.CreateModel
 
+@section Header {
+    @await Component.InvokeAsync("Breadcrumbs", new { dto = Model.BreadcrumbsConfiguration })
+}
+
 <h4>Create product</h4>
 <hr />
 <div class="row">

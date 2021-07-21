@@ -1,0 +1,11 @@
+﻿@model NorthwindApp.DTO.BreadcrumbsConfiguration
+
+<nav aria-label="breadcrumb" class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white box-shadow mb-3">
+    <div class="container">
+        <ol class="breadcrumb bg-white">
+            <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-page="Index">@Model.PageName</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Mode.ToString()</li>
+        </ol>
+    </div>
+</nav>

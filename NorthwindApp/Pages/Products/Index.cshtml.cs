@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
+using NorthwindApp.DTO;
 using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
 using NorthwindApp.Models;
@@ -18,6 +19,7 @@ namespace NorthwindApp.Pages.Products
         public IList<string> RowNames => _rowNames ?? PropertyHelper.GetDisplayablePropertyNames(typeof(Product));
         public PaginatedList<Product> Products { get; set; }
         public int ProductsPageSize { get; set; }
+        public BreadcrumbsConfiguration BreadcrumbsConfiguration { get; private set; }
 
         public IndexModel(IConfiguration configuration, IRepository<Product> productRepository)
         {
@@ -31,6 +33,11 @@ namespace NorthwindApp.Pages.Products
             int productsPageSize = _configuration.GetValue<int>(Constants.ProductsPageSize);
             ProductsPageSize = productsPageSize;
             await Init(productsPageSize, pageIndex);
+            BreadcrumbsConfiguration = new BreadcrumbsConfiguration
+            {
+                PageName = nameof(Products),
+                Mode = BreadcrumbsMode.List
+            };
 
             return Page();
         }
