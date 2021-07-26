@@ -27,6 +27,7 @@ namespace NorthwindApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(Configuration);
+            services.AddAutoMapper(typeof(Startup));
             ConfigureStorage(services);
             services.AddRazorPages();
 
