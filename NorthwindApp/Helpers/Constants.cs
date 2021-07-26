@@ -13,5 +13,6 @@
         public const string CachedFolderNameKey = "CachedFolderName";
         public const string CacheTimeInMinutesKey = "CacheTimeInMinutes";
         public const string LoggingActionsEnabledKey = "LoggingActionsEnabled";
+        public const string Href = "href";
     }
 }

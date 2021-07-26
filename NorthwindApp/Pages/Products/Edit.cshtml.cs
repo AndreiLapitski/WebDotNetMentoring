@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NorthwindApp.DTO;
 using NorthwindApp.Interfaces;
 using NorthwindApp.Models;
 
@@ -22,6 +23,7 @@ namespace NorthwindApp.Pages.Products
         public Product Product { get; set; }
         public SelectList Categories { get; set; }
         public SelectList Suppliers { get; set; }
+        public BreadcrumbsConfiguration BreadcrumbsConfiguration { get; private set; }
 
         public EditModel(
             IRepository<Product> productRepository,
@@ -84,6 +86,11 @@ namespace NorthwindApp.Pages.Products
         {
             Categories = new SelectList(_categories, nameof(Category.CategoryId), nameof(Category.CategoryName));
             Suppliers = new SelectList(_suppliers, nameof(Supplier.SupplierId), nameof(Supplier.CompanyName));
+            BreadcrumbsConfiguration = new BreadcrumbsConfiguration
+            {
+                PageName = nameof(Product),
+                Mode = BreadcrumbsMode.Edit
+            };
         }
     }
 }

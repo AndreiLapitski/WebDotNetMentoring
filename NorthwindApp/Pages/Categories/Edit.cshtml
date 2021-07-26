@@ -19,6 +19,8 @@
             <a class="btn btn-dark" href="@Model.CategoryPictureHref">
                 <i class="fa fa-download" aria-hidden="true"></i>
             </a>
+            @Html.NorthwindCategoryImageLink(Model.Category.CategoryId, "Html helper link")
+            <a northwind-id="@Model.Category.CategoryId">Tag helper link</a>
         </div>
     </div>
 

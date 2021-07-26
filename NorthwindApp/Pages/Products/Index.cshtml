@@ -6,6 +6,10 @@
     string nextDisabled = !Model.Products.HasNextPage ? Constants.Disabled : string.Empty;
 }
 
+<div>
+    @await Component.InvokeAsync("Breadcrumbs", new { dto = Model.BreadcrumbsConfiguration })
+</div>
+
 <div class="flex-container">
     <div>
         <a asp-page="/Products/Create"

@@ -9,6 +9,11 @@ namespace NorthwindApp.Helpers
 {
     public static class CustomHtmlHelper
     {
+        public static IHtmlContent NorthwindCategoryImageLink(this IHtmlHelper html, int categoryId, string linkText)
+        {
+            return new HtmlString($"<a href='/images/{categoryId}'>{linkText}</a>");
+        }
+
         public static IHtmlContent GetImage(this IHtmlHelper html, byte[] bytes)
         {
             if (!IsValidImage(bytes))
