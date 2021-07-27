@@ -22,11 +22,47 @@ namespace NorthwindApp.Controllers
             _mapper = mapper;
         }
 
+        // GET /api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
             IEnumerable<Product> products = await _productRepository.GetAll().ToListAsync();
             return _mapper.Map<List<ProductDto>>(products);
+        }
+
+        // POST /api/Products
+        [HttpPost]
+        public async Task<ActionResult<Product>> Create(Product product)
+        {
+            product.ProductId = await _productRepository.CreateAsync(product);
+            return product;
+        }
+
+        // DELETE /api/Products/5
+        [HttpDelete("id")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            Product product = await _productRepository.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            await _productRepository.DeleteAsync(product);
+            return NoContent();
+        }
+
+        // PUT /api/Products/3
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Product>> Update(int id, Product updatedProduct)
+        {
+            if (id != updatedProduct.ProductId)
+            {
+                return BadRequest();
+            }
+
+            await _productRepository.UpdateAsync(id, updatedProduct);
+            return NoContent();
         }
     }
 }
