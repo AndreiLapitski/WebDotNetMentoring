@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using NorthwindApp.Filters;
 using NorthwindApp.Helpers;
 using NorthwindApp.Interfaces;
@@ -37,6 +38,15 @@ namespace NorthwindApp
                     options.MaxModelValidationErrors = 999999; // https://stackoverflow.com/questions/63112368/asp-net-core-api-validationvisitor-exceeded-the-maximum-configured-validation
                     options.Filters.Add(typeof(LogFilter));
                 });
+
+            services.AddSwaggerGen(option =>
+            {
+                option.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Northwind API",
+                    Version = "v1"
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,6 +89,12 @@ namespace NorthwindApp
                         controller = "Picture",
                         action = "DownloadCategoryPicture"
                     });
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API V1");
             });
 
             ClearOrCreateCacheDirectory(
