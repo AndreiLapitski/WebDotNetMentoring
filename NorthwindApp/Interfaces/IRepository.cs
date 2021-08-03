@@ -11,6 +11,10 @@ namespace NorthwindApp.Interfaces
 
         Task<int> CreateAsync(T item);
 
+        Task<int> DeleteAsync(T item);
+
+        Task<int> UpdateAsync(int id, T item);
+
         Task<int> SaveAsync();
     }
 }

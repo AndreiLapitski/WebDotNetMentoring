@@ -5,6 +5,7 @@
         public const int NorthwindImageGarbageBytesCount = 78;
         public const string DbConnectionKey = "NorthwindConnection";
         public const string ProductsPageSize = "ProductsPageSize";
+        public const string SwaggerUIUrlKey = "SwaggerUIUrl";
         public const string AcceptedFiles = "AcceptedFiles";
         public const string Disabled = "disabled";
         public const string ErrorTemplatePath = "templates/Exception.html";

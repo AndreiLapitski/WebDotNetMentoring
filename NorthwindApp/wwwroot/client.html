@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h4>Categories:</h4>
+    <ul id="categories-list"></ul>
+
+    <h4>Products:</h4>
+    <ul id="products-list"></ul>
+</body>
+</html>
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+<script>
+    const productsUri = 'api/products';
+    const categoriesUri = 'api/categories';
+
+    $(document).ready(function () {
+        $.getJSON(categoriesUri)
+            .done(function (data) {
+                $.each(data, function (key, item) {
+                    $('<li>', { text: formatItem(item) }).appendTo($('#categories-list'));
+                });
+            });
+
+        $.getJSON(productsUri)
+            .done(function (data) {
+                $.each(data, function (key, item) {
+                    $('<li>', { text: formatItem(item) }).appendTo($('#products-list'));
+                });
+            });
+    });
+
+    function formatItem(item) {
+        return JSON.stringify(item);
+    }
+</script>

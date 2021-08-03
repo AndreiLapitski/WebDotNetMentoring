@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NorthwindApp.Interfaces;
 using NorthwindApp.Models;
 
@@ -26,8 +27,19 @@ namespace NorthwindApp.Repositories
 
         public async Task<int> CreateAsync(Category item)
         {
-            await _context.Categories.AddAsync(item);
-            return await SaveAsync();
+            EntityEntry<Category> newItem = await _context.Categories.AddAsync(item);
+            await SaveAsync();
+            return newItem.Entity.CategoryId;
+        }
+
+        public Task<int> DeleteAsync(Category item)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<int> UpdateAsync(int id, Category item)
+        {
+            throw new System.NotImplementedException();
         }
 
         public async Task<int> SaveAsync()
