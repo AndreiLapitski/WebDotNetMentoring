@@ -30,6 +30,20 @@
                         </li>
                     </ul>
                 </div>
+                <div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a class="btn btn-dark" asp-page="/Account/Logout">
+                            Logout
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-dark" asp-page="/Account/Login">
+                            Sign in/up
+                        </a>
+                    }
+                </div>
             </div>
         </nav>
     </header>

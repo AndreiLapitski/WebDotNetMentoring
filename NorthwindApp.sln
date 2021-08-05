@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "XUnitTestProject\T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetClient", "DotNetClient\DotNetClient.csproj", "{318BBE28-9463-48DA-A410-A34C0D75B7F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsWithGeneratedClient", "TestsWithGeneratedClient\TestsWithGeneratedClient.csproj", "{AF8BBA86-B4BC-4E82-9895-52C2D039BAF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestsWithGeneratedClient", "TestsWithGeneratedClient\TestsWithGeneratedClient.csproj", "{AF8BBA86-B4BC-4E82-9895-52C2D039BAF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

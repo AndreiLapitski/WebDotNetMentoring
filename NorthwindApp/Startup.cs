@@ -1,6 +1,9 @@
+using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +34,28 @@ namespace NorthwindApp
             services.AddAutoMapper(typeof(Startup));
             ConfigureStorage(services);
             services.AddRazorPages();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                options.SlidingExpiration = true;
+            });
 
             services.AddMvc().AddMvcOptions(options =>
                 {
@@ -66,6 +91,7 @@ namespace NorthwindApp
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMiddleware<CacheMiddleware>();
@@ -104,12 +130,18 @@ namespace NorthwindApp
 
         private void ConfigureStorage(IServiceCollection services)
         {
+            services.AddDbContext<NorthwindIdentityContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString(Constants.NorthwindIdentityConnectionKey)));
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddEntityFrameworkStores<NorthwindIdentityContext>();
+
             services.AddDbContext<NorthwindContext>(optionsAction =>
                     optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)));
 
             services.AddScoped<IRepository<Category>, CategoryRepository>();
             services.AddScoped<IRepository<Product>, ProductRepository>();
             services.AddScoped<IRepository<Supplier>, SupplierRepository>();
+            services.AddScoped<IEmailSender, EmailHelper>();
         }
 
         private void ClearOrCreateCacheDirectory(IWebHostEnvironment env, string directoryName)
