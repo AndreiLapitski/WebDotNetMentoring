@@ -1,9 +1,5 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.UI;
 using Microsoft.OpenApi.Models;
 using NorthwindApp.Filters;
 using NorthwindApp.Helpers;
@@ -43,54 +38,15 @@ namespace NorthwindApp
             services.AddSingleton(Configuration);
             services.AddAutoMapper(typeof(Startup));
             ConfigureStorage(services);
-            //services.AddRazorPages();//duplicated at 54
 
-            //AZURE AD
-            //services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
-            //    .AddOpenIdConnect(options => Configuration.Bind("AzureAd", options));
-
-            //services.Configure<CookieAuthenticationOptions>(
-            //    AzureADDefaults.CookieScheme, 
-            //    options => options.AccessDeniedPath = "/Account/AccessDenied");
-
-            //works
             services
                 .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
-            
-            //var authScheme = AzureADDefaults.AuthenticationScheme;
 
-            //services
-            //    .AddAuthentication(o =>
-            //    {
-            //        o.DefaultAuthenticateScheme = authScheme;
-            //    })
-            //    .AddCookie(authScheme, authScheme, opt =>
-            //    {
-            //        opt.Cookie.Name = "MyAuth";
-            //        opt.LoginPath = "/Account/SignIn";
-            //        opt.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-            //        opt.AccessDeniedPath = "/Error/UnAuthorized";
-            //        opt.LogoutPath = "/Account/SignOut";
-            //    });
-
-
-            //services
-            //    .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            //    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
-
-            //services
-            //    .AddAuthentication(options =>
-            //    {
-            //        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-            //        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-            //    })
-            //    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
-
-            //services
-            //    .AddAuthentication(AzureADDefaults.AuthenticationScheme)
-            //    .AddAzureAD(options => Configuration.Bind("AzureAd", options));
-
+            services
+                .AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<NorthwindIdentityContext>()
+                .AddDefaultTokenProviders();
 
             services.AddControllersWithViews(options =>
             {
@@ -100,13 +56,12 @@ namespace NorthwindApp
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
 
-            //https://docs.microsoft.com/en-us/aspnet/core/security/authorization/razor-pages-authorization?view=aspnetcore-5.0
             services
                 .AddRazorPages(options =>
                 {
                     options.Conventions.AllowAnonymousToPage("/Index");
-                })
-                .AddMicrosoftIdentityUI();
+                    options.Conventions.AllowAnonymousToPage("/Account/ForgotPassword");
+                });
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -121,16 +76,6 @@ namespace NorthwindApp
 
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = true;
-            });
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-
-                //options.LoginPath = "/Account/Login";
-                //options.AccessDeniedPath = "/Account/AccessDenied";
-                options.SlidingExpiration = true;
             });
 
             services.AddMvc().AddMvcOptions(options =>
@@ -174,16 +119,11 @@ namespace NorthwindApp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
-            });
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     "DownloadImage",
                     "images/{categoryId?}",
                     new
@@ -191,6 +131,8 @@ namespace NorthwindApp
                         controller = "Picture",
                         action = "DownloadCategoryPicture"
                     });
+
+                endpoints.MapRazorPages();
             });
 
             app.UseSwagger();
@@ -211,10 +153,7 @@ namespace NorthwindApp
                     options.UseSqlServer(Configuration.GetConnectionString(Constants.NorthwindIdentityConnectionKey)));
 
             services
-                .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddEntityFrameworkStores<NorthwindIdentityContext>();
-
-            services.AddDbContext<NorthwindContext>(optionsAction =>
+                .AddDbContext<NorthwindContext>(optionsAction =>
                     optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)));
 
             services.AddScoped<IRepository<Category>, CategoryRepository>();

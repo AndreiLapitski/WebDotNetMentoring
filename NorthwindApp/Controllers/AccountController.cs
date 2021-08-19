@@ -1,112 +1,81 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using NorthwindApp.Helpers;
+using Serilog;
 
 namespace NorthwindApp.Controllers
 {
     [Route("[controller]/[action]")]
+    [AllowAnonymous]
     public class AccountController : Controller
     {
+        private readonly IConfiguration _configuration;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        public AccountController(SignInManager<IdentityUser> signInManager)
+        public AccountController(
+            IConfiguration configuration,
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager)
         {
+            _configuration = configuration;
+            _userManager = userManager;
             _signInManager = signInManager;
         }
 
-        //[HttpGet]// [HttpGet("internal-signin")]
-        //public ChallengeResult SignIn(string returnUrl = "/")
-        //{
-        //    return Challenge(
-        //        new AuthenticationProperties {RedirectUri = returnUrl},
-        //        AzureADDefaults.AuthenticationScheme);
-        //}
-
-        //[HttpGet]// [HttpGet("signout")]
-        //[Authorize]
-        //public async Task<IActionResult> SignOut()
-        //{
-        //    await _signInManager.SignOutAsync();
-        //    return RedirectToAction("Index", "Home");
-        //}
-
         [HttpGet]
-        public ChallengeResult SignIn()
+        public IActionResult ExternalSignIn()
         {
-            //https://stackoverflow.com/questions/60198623/how-to-use-both-azure-ad-authentication-and-identity-on-asp-net-core-3
-            AuthenticationProperties authenticationProperties =
-                _signInManager.ConfigureExternalAuthenticationProperties(
-                    OpenIdConnectDefaults.AuthenticationScheme,
-                    "/");
-
-            return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme, authenticationProperties);
-        }
-
-
-        //[HttpGet]
-        //public ChallengeResult SignIn()
-        //{
-        //    var authenticationProperties =
-        //        _signInManager.ConfigureExternalAuthenticationProperties(OpenIdConnectDefaults.AuthenticationScheme, "/");
-
-        //    //return Challenge(
-        //    //    new AuthenticationProperties { RedirectUri = "/" },
-        //    //    OpenIdConnectDefaults.AuthenticationScheme);
-
-        //    return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme, authenticationProperties);
-        //    //return Challenge(
-        //    //    new AuthenticationProperties { RedirectUri = "/" },
-        //    //    AzureADDefaults.AuthenticationScheme);
-        //}
-
-        [HttpGet]
-        public async Task<IActionResult> SignOut()
-        {
-            await HttpContext.SignOutAsync("Cookies");
-            return RedirectToPage("/Index");
-        }
-
-        //[HttpGet]
-        //public IActionResult SignOut()
-        //{
-        //    string callbackUrl = Url.Page("/Account/SignedOut", null, null, Request.Scheme);
-
-        //    //return SignOut(
-        //    //    new AuthenticationProperties { RedirectUri = callbackUrl },
-        //    //    CookieAuthenticationDefaults.AuthenticationScheme,
-        //    //    AzureADDefaults.AuthenticationScheme);
-
-        //    return SignOut(
-        //        new AuthenticationProperties { RedirectUri = callbackUrl },
-        //        CookieAuthenticationDefaults.AuthenticationScheme,
-        //        OpenIdConnectDefaults.AuthenticationScheme);
-        //}
-
-        [HttpGet]
-        public IActionResult SignedOut()
-        {
-            if (HttpContext.User.Identity.IsAuthenticated)
+            return Challenge(new AuthenticationProperties
             {
-                //return RedirectToAction(nameof(HomeController.Index), "Home");
-                return BadRequest();
+                RedirectUri = _configuration.GetValue<string>(Constants.ExternalRedirectUrlKey)
+            }, OpenIdConnectDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExternalLoginHandler()
+        {
+            AuthenticateResult externalAuthenticateResult =
+                await HttpContext.AuthenticateAsync(OpenIdConnectDefaults.AuthenticationScheme);
+
+            if (externalAuthenticateResult.Succeeded)
+            {
+                string externalUserEmail = externalAuthenticateResult.Principal.Identity.Name;
+                IdentityUser existedUser = await _userManager.FindByEmailAsync(externalUserEmail);
+                if (existedUser == null)
+                {
+                    IdentityUser newUser = new IdentityUser
+                    {
+                        Email = externalUserEmail,
+                        UserName = externalUserEmail
+                    };
+
+                    IdentityResult result = await _userManager.CreateAsync(newUser);
+                    if (result.Succeeded)
+                    {
+                        Log.Information($"New account for {externalUserEmail} has been created successfully by the external login handler.");
+                        existedUser = newUser;
+                    }
+                    else
+                    {
+                        Log.Error($"User with the {externalUserEmail} email wasn't be created. Identity errors: {result.Errors.Aggregate(string.Empty, (current, error) => current + $"Code: {error.Code}. Description: {error.Description}{Environment.NewLine}")}");
+                        throw new AuthenticationException();
+                    }
+                }
+
+                Log.Information($"{existedUser.Email} logged in by the external login handler.");
+                await _signInManager.SignInAsync(existedUser, false);
             }
 
-            //return View();
-            return Ok();
-        }
-
-        [HttpGet]
-        public IActionResult AccessDenied()
-        {
-            return BadRequest();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

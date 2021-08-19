@@ -24,5 +24,7 @@
         public const string GmailSmtpHostKey = "EmailClientConfiguration:GmailSmtpHost";
         public const string PortKey = "EmailClientConfiguration:Port";
         public const string UseSslKey = "EmailClientConfiguration:UseSsl";
+
+        public const string ExternalRedirectUrlKey = "ExternalRedirectUrl";
     }
 }
