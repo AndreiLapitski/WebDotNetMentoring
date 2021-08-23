@@ -43,6 +43,13 @@ namespace NorthwindApp
                 .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "AdministrationRoles",
+                    policy => policy.RequireRole("Admin"));
+            });
+
             services
                 .AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<NorthwindIdentityContext>()
@@ -61,6 +68,7 @@ namespace NorthwindApp
                 {
                     options.Conventions.AllowAnonymousToPage("/Index");
                     options.Conventions.AllowAnonymousToPage("/Account/ForgotPassword");
+                    options.Conventions.AllowAnonymousToPage("/Administrators/Index");
                 });
 
             services.Configure<IdentityOptions>(options =>
