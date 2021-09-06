@@ -16,21 +16,18 @@ namespace NorthwindApp.Middleware
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _memoryCache;
         private readonly RequestDelegate _next;
-        private readonly IRepository<Category> _categoryRepository;
 
         public CacheMiddleware(
             RequestDelegate next,
             IConfiguration configuration,
-            IMemoryCache memoryCache,
-            IRepository<Category> categoryRepository)
+            IMemoryCache memoryCache)
         {
             _next = next;
             _configuration = configuration;
             _memoryCache = memoryCache;
-            _categoryRepository = categoryRepository;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IRepository<Category> categoryRepository)
         {
             int categoryId = GetCategoryId(context.Request);
             if (_memoryCache.TryGetValue(categoryId, out var result))
@@ -46,7 +43,7 @@ namespace NorthwindApp.Middleware
                 {
                     int cacheTime = _configuration.GetValue<int>(Constants.CacheTimeInMinutesKey);
                     AddCategoryIdToCache(categoryId, cacheTime);
-                    await AddImageToDirectory(categoryId);
+                    await AddImageToDirectory(categoryId, categoryRepository);
                 }
             }
         }
@@ -82,11 +79,11 @@ namespace NorthwindApp.Middleware
             await fileStream.CopyToAsync(context.Response.Body);
         }
 
-        private async Task AddImageToDirectory(int categoryId)
+        private async Task AddImageToDirectory(int categoryId, IRepository<Category> categoryRepository)
         {
             string cacheFolderPath = 
                 _configuration.GetValue<string>(Constants.CachedFolderNameKey);
-            Category category = await _categoryRepository.GetByIdAsync(categoryId);
+            Category category = await categoryRepository.GetByIdAsync(categoryId);
             await using FileStream fileStream = 
                 File.Create($"{cacheFolderPath}/{categoryId}.jpg");
             await fileStream.WriteAsync(
