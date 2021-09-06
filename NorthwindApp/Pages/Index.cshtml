@@ -16,4 +16,11 @@
             Swagger UI
         </a>
     </p>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <p class="text-danger">
+            Hello, @User.Identity.Name
+        </p>
+    }
 </div>

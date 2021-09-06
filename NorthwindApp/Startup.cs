@@ -1,10 +1,17 @@
+using System;
 using System.IO;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using NorthwindApp.Filters;
 using NorthwindApp.Helpers;
@@ -12,6 +19,7 @@ using NorthwindApp.Interfaces;
 using NorthwindApp.Middleware;
 using NorthwindApp.Models;
 using NorthwindApp.Repositories;
+using Constants = NorthwindApp.Helpers.Constants;
 
 namespace NorthwindApp
 {
@@ -30,7 +38,53 @@ namespace NorthwindApp
             services.AddSingleton(Configuration);
             services.AddAutoMapper(typeof(Startup));
             ConfigureStorage(services);
-            services.AddRazorPages();
+
+            services
+                .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "AdministrationRoles",
+                    policy => policy.RequireRole("Admin"));
+            });
+
+            services
+                .AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<NorthwindIdentityContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddControllersWithViews(options =>
+            {
+                AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            services
+                .AddRazorPages(options =>
+                {
+                    options.Conventions.AllowAnonymousToPage("/Index");
+                    options.Conventions.AllowAnonymousToPage("/Account/ForgotPassword");
+                    options.Conventions.AllowAnonymousToPage("/Administrators/Index");
+                });
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+            });
 
             services.AddMvc().AddMvcOptions(options =>
                 {
@@ -66,22 +120,18 @@ namespace NorthwindApp
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMiddleware<CacheMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
-            });
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     "DownloadImage",
                     "images/{categoryId?}",
                     new
@@ -89,6 +139,8 @@ namespace NorthwindApp
                         controller = "Picture",
                         action = "DownloadCategoryPicture"
                     });
+
+                endpoints.MapRazorPages();
             });
 
             app.UseSwagger();
@@ -104,12 +156,18 @@ namespace NorthwindApp
 
         private void ConfigureStorage(IServiceCollection services)
         {
-            services.AddDbContext<NorthwindContext>(optionsAction =>
+            services
+                .AddDbContext<NorthwindIdentityContext>(options => 
+                    options.UseSqlServer(Configuration.GetConnectionString(Constants.NorthwindIdentityConnectionKey)));
+
+            services
+                .AddDbContext<NorthwindContext>(optionsAction =>
                     optionsAction.UseSqlServer(Configuration.GetConnectionString(Constants.DbConnectionKey)));
 
             services.AddScoped<IRepository<Category>, CategoryRepository>();
             services.AddScoped<IRepository<Product>, ProductRepository>();
             services.AddScoped<IRepository<Supplier>, SupplierRepository>();
+            services.AddScoped<IEmailSender, EmailHelper>();
         }
 
         private void ClearOrCreateCacheDirectory(IWebHostEnvironment env, string directoryName)
